@@ -1,0 +1,13 @@
+/* Estilos personalizados Empodérate Vecino */
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+/* Animación suave para transiciones */
+[x-cloak] { display: none !important; }
+
+/* Efecto hover en tarjetas */
+.hover\:shadow-md {
+  transition: box-shadow 0.2s ease-in-out;
+}
