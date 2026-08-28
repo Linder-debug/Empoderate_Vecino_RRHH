@@ -182,12 +182,26 @@ function app() {
         .single();
       if (error || !data) { console.warn('Perfil no encontrado:', error); this.profile = null; return; }
 
-      const { data: crs } = await sb
-        .from('commission_roles')
-        .select('commission_id, role_type, can_write, commissions(id, name)')
-        .eq('person_id', data.person_id);
-      data.commission_roles = crs || [];
-
+      let crs = [];
+      // Cuentas ligadas a persona (modelo antiguo, por compatibilidad)
+      if (data.person_id) {
+        const r = await sb
+          .from('commission_roles')
+          .select('commission_id, role_type, can_write, commissions(id, name)')
+          .eq('person_id', data.person_id);
+        crs = r.data || [];
+      }
+      // Cuentas ligadas a comisión (modelo nuevo)
+      if (data.commission_id && !crs.length) {
+        const c = await sb.from('commissions').select('id, name').eq('id', data.commission_id).single();
+        crs = [{
+          commission_id: data.commission_id,
+          role_type: data.app_role,
+          can_write: (data.app_role === 'coordinador' || data.app_role === 'rrhh'),
+          commissions: c.data
+        }];
+      }
+      data.commission_roles = crs;
       this.profile = data;
     },
 
@@ -198,7 +212,7 @@ function app() {
       this.view = 'vol';
     },
 
-        async forgot() {
+    async forgot() {
       if (!sb) { this.errorMsg = this.configError || 'Cliente no disponible.'; return; }
       const correo = this.email.trim().toLowerCase();
       if (!correo) {
