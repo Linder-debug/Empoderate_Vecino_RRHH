@@ -24,102 +24,63 @@
     <div class="min-h-screen flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
         <div class="text-center mb-6">
-          <img src="assets/logo.png" alt="Empodérate Vecino" class="h-20 mx-auto mb-3" onerror="this.style.display='none'" />
+          <img src="assets/logo.png" alt="" class="h-20 mx-auto mb-3" onerror="this.style.display='none'" />
           <h1 class="text-xl font-bold text-slate-800">Nueva contraseña</h1>
           <p class="text-slate-500 mt-1">Crea una contraseña segura para tu cuenta.</p>
         </div>
         <form @submit.prevent="saveNewPassword" class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-1">Nueva contraseña</label>
-            <input type="password" x-model="newPass" required
-              class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+            <input type="password" x-model="newPass" class="w-full px-4 py-2 border border-slate-300 rounded-lg" />
           </div>
-          
-          <div class="mb-2">
-            <div class="flex gap-1 mb-2">
-              <div class="h-2 flex-1 rounded-full transition-all" 
-                :class="passwordChecks.length ? 'bg-green-500' : 'bg-slate-200'"></div>
-              <div class="h-2 flex-1 rounded-full transition-all" 
-                :class="passwordChecks.upper ? 'bg-green-500' : 'bg-slate-200'"></div>
-              <div class="h-2 flex-1 rounded-full transition-all" 
-                :class="passwordChecks.lower ? 'bg-green-500' : 'bg-slate-200'"></div>
-              <div class="h-2 flex-1 rounded-full transition-all" 
-                :class="passwordChecks.number ? 'bg-green-500' : 'bg-slate-200'"></div>
-              <div class="h-2 flex-1 rounded-full transition-all" 
-                :class="passwordChecks.special ? 'bg-green-500' : 'bg-slate-200'"></div>
-            </div>
+          <div class="flex gap-1 mb-2">
+            <div class="h-2 flex-1 rounded-full" :class="passwordChecks.length ? 'bg-green-500' : 'bg-slate-200'"></div>
+            <div class="h-2 flex-1 rounded-full" :class="passwordChecks.upper ? 'bg-green-500' : 'bg-slate-200'"></div>
+            <div class="h-2 flex-1 rounded-full" :class="passwordChecks.lower ? 'bg-green-500' : 'bg-slate-200'"></div>
+            <div class="h-2 flex-1 rounded-full" :class="passwordChecks.number ? 'bg-green-500' : 'bg-slate-200'"></div>
+            <div class="h-2 flex-1 rounded-full" :class="passwordChecks.special ? 'bg-green-500' : 'bg-slate-200'"></div>
           </div>
-
-          <ul class="text-xs space-y-1 mb-4">
-            <li class="flex items-center gap-2" :class="passwordChecks.length ? 'text-green-600' : 'text-slate-500'">
-              <span x-text="passwordChecks.length ? '✓' : '○'"></span>
-              Mínimo 8 caracteres
-            </li>
-            <li class="flex items-center gap-2" :class="passwordChecks.upper ? 'text-green-600' : 'text-slate-500'">
-              <span x-text="passwordChecks.upper ? '✓' : '○'"></span>
-              Al menos una letra MAYÚSCULA
-            </li>
-            <li class="flex items-center gap-2" :class="passwordChecks.lower ? 'text-green-600' : 'text-slate-500'">
-              <span x-text="passwordChecks.lower ? '✓' : '○'"></span>
-              Al menos una letra minúscula
-            </li>
-            <li class="flex items-center gap-2" :class="passwordChecks.number ? 'text-green-600' : 'text-slate-500'">
-              <span x-text="passwordChecks.number ? '✓' : '○'"></span>
-              Al menos un número
-            </li>
-            <li class="flex items-center gap-2" :class="passwordChecks.special ? 'text-green-600' : 'text-slate-500'">
-              <span x-text="passwordChecks.special ? '✓' : '○'"></span>
-              Al menos un carácter especial (!@#$%...)
-            </li>
+          <ul class="text-xs space-y-1">
+            <li :class="passwordChecks.length ? 'text-green-600' : 'text-slate-500'"><span x-text="passwordChecks.length ? '✓' : '○'"></span> Mínimo 8 caracteres</li>
+            <li :class="passwordChecks.upper ? 'text-green-600' : 'text-slate-500'"><span x-text="passwordChecks.upper ? '✓' : '○'"></span> Una MAYÚSCULA</li>
+            <li :class="passwordChecks.lower ? 'text-green-600' : 'text-slate-500'"><span x-text="passwordChecks.lower ? '✓' : '○'"></span> Una minúscula</li>
+            <li :class="passwordChecks.number ? 'text-green-600' : 'text-slate-500'"><span x-text="passwordChecks.number ? '✓' : '○'"></span> Un número</li>
+            <li :class="passwordChecks.special ? 'text-green-600' : 'text-slate-500'"><span x-text="passwordChecks.special ? '✓' : '○'"></span> Un carácter especial</li>
           </ul>
-
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Confirmar contraseña</label>
-            <input type="password" x-model="newPass2" required
-              class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
-            <p class="text-xs mt-1" 
-              :class="passwordChecks.match ? 'text-green-600' : 'text-red-600'"
-              x-show="newPass2.length > 0"
-              x-text="passwordChecks.match ? '✓ Las contraseñas coinciden' : '✗ Las contraseñas no coinciden'"></p>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Confirmar</label>
+            <input type="password" x-model="newPass2" class="w-full px-4 py-2 border border-slate-300 rounded-lg" />
+            <p class="text-xs mt-1" x-show="newPass2.length > 0" :class="passwordChecks.match ? 'text-green-600' : 'text-red-600'"
+               x-text="passwordChecks.match ? '✓ Coinciden' : '✗ No coinciden'"></p>
           </div>
-
           <div x-show="resetMsg" x-text="resetMsg" class="bg-red-50 text-red-700 text-sm p-3 rounded-lg"></div>
-          
-          <button type="submit" 
-            :disabled="!isPasswordValid"
+          <button type="submit" :disabled="!isPasswordValid"
             :class="isPasswordValid ? 'bg-blue-600 hover:bg-blue-700' : 'bg-slate-300 cursor-not-allowed'"
-            class="w-full text-white py-2 rounded-lg font-medium transition-colors">
-            Guardar contraseña
-          </button>
+            class="w-full text-white py-2 rounded-lg font-medium">Guardar contraseña</button>
         </form>
       </div>
     </div>
   </template>
 
-    <!-- =================== RECUPERAR CONTRASEÑA =================== -->
+  <!-- =================== RECUPERAR CONTRASEÑA =================== -->
   <template x-if="ready && !session && !showReset && forgotMode">
     <div class="min-h-screen flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
         <div class="text-center mb-6">
-          <img src="assets/logo.png" alt="Empodérate Vecino" class="h-20 mx-auto mb-3" onerror="this.style.display='none'" />
+          <img src="assets/logo.png" alt="" class="h-20 mx-auto mb-3" onerror="this.style.display='none'" />
           <h1 class="text-xl font-bold text-slate-800">Recuperar contraseña</h1>
-          <p class="text-slate-500 mt-1">Escribe tu correo y te enviaremos un enlace para crear una nueva contraseña.</p>
+          <p class="text-slate-500 mt-1">Te enviaremos un enlace para crear una nueva contraseña.</p>
         </div>
         <form @submit.prevent="forgot()" class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-1">Correo</label>
-            <input type="email" x-model="email" required
-              class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+            <input type="email" x-model="email" required class="w-full px-4 py-2 border border-slate-300 rounded-lg" />
           </div>
           <div x-show="errorMsg" x-text="errorMsg" class="bg-red-50 text-red-700 text-sm p-3 rounded-lg"></div>
-          <button type="submit" :disabled="forgotLoading"
-            class="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 disabled:bg-slate-400">
+          <button type="submit" :disabled="forgotLoading" class="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 disabled:bg-slate-400">
             <span x-text="forgotLoading ? 'Enviando...' : 'Enviar'"></span>
           </button>
-          <button type="button" @click="cancelForgot()"
-            class="w-full bg-slate-200 text-slate-700 py-2 rounded-lg font-medium hover:bg-slate-300">
-            Volver al login
-          </button>
+          <button type="button" @click="cancelForgot()" class="w-full bg-slate-200 text-slate-700 py-2 rounded-lg font-medium hover:bg-slate-300">Volver al login</button>
         </form>
       </div>
     </div>
@@ -130,40 +91,34 @@
     <div class="min-h-screen flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
         <div class="text-center mb-6">
-          <img src="assets/logo.png" alt="Empodérate Vecino" class="h-20 mx-auto mb-3" onerror="this.style.display='none'" />
+          <img src="assets/logo.png" alt="" class="h-20 mx-auto mb-3" onerror="this.style.display='none'" />
           <h1 class="text-2xl font-bold text-slate-800">Empodérate Vecino</h1>
           <p class="text-slate-500 mt-1">Sistema de Gestión de Voluntariado</p>
         </div>
-        <div x-show="configError" x-text="configError"
-             class="bg-amber-50 border border-amber-300 text-amber-800 text-sm p-3 rounded-lg mb-4"></div>
+        <div x-show="configError" x-text="configError" class="bg-amber-50 border border-amber-300 text-amber-800 text-sm p-3 rounded-lg mb-4"></div>
         <form @submit.prevent="login()" class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-1">Correo</label>
-            <input type="email" x-model="email" required
-              class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+            <input type="email" x-model="email" required class="w-full px-4 py-2 border border-slate-300 rounded-lg" />
           </div>
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
-            <input type="password" x-model="password" required
-              class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500" />
+            <input type="password" x-model="password" required class="w-full px-4 py-2 border border-slate-300 rounded-lg" />
           </div>
           <div x-show="errorMsg" x-text="errorMsg" class="bg-red-50 text-red-700 text-sm p-3 rounded-lg"></div>
           <div x-show="infoMsg" x-text="infoMsg" class="bg-green-50 text-green-700 text-sm p-3 rounded-lg"></div>
-          <button type="submit" :disabled="loading"
-            class="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 disabled:bg-slate-400">
+          <button type="submit" :disabled="loading" class="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 disabled:bg-slate-400">
             <span x-text="loading ? 'Ingresando...' : 'Ingresar'"></span>
           </button>
           <div class="text-center">
-            <button type="button" @click="forgotMode = true; errorMsg = ''; infoMsg = ''"
-              class="text-sm text-blue-600 underline">
-              ¿Olvidaste tu contraseña?
-            </button>
+            <button type="button" @click="forgotMode = true; errorMsg = ''; infoMsg = ''" class="text-sm text-blue-600 underline">¿Olvidaste tu contraseña?</button>
           </div>
         </form>
       </div>
     </div>
   </template>
-  <!-- =================== APP =================== -->
+
+  <!-- =================== APP PRINCIPAL =================== -->
   <template x-if="ready && session && !showReset">
     <div class="min-h-screen">
       <header class="bg-white shadow-sm">
@@ -172,8 +127,7 @@
             <img src="assets/logo.png" alt="" class="h-9" onerror="this.style.display='none'" />
             <div>
               <h1 class="text-lg font-bold text-slate-800">Empodérate Vecino</h1>
-              <p class="text-xs text-slate-500"
-                 x-text="profile ? ('Rol: ' + profile.app_role + (myCommission ? ' — ' + myCommission.commissions.name : '')) : ''"></p>
+              <p class="text-xs text-slate-500" x-text="profile ? ('Rol: ' + profile.app_role + (myCommission ? ' — ' + myCommission.commissions.name : '')) : ''"></p>
             </div>
           </div>
           <button @click="logout" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1 rounded-lg text-sm">Salir</button>
@@ -191,153 +145,235 @@
           <div>
             <div class="flex flex-wrap gap-2 mb-4">
               <button @click="view='vol'; pageVol=1" :class="view==='vol' ? 'bg-blue-600 text-white' : 'bg-white'" class="px-4 py-2 rounded-lg text-sm font-medium shadow">Personas</button>
+              <button @click="view='bajas'; pageVol=1" :class="view==='bajas' ? 'bg-blue-600 text-white' : 'bg-white'" class="px-4 py-2 rounded-lg text-sm font-medium shadow">Bajas</button>
+              <button @click="view='reg'" :class="view==='reg' ? 'bg-blue-600 text-white' : 'bg-white'" class="px-4 py-2 rounded-lg text-sm font-medium shadow">Registrar horas</button>
               <button @click="view='rep'; pageHours=1; $nextTick(() => renderChart())" :class="view==='rep' ? 'bg-blue-600 text-white' : 'bg-white'" class="px-4 py-2 rounded-lg text-sm font-medium shadow">Horas registradas</button>
+              <button @click="view='att'; $nextTick(() => loadAttendance())" :class="view==='att' ? 'bg-blue-600 text-white' : 'bg-white'" class="px-4 py-2 rounded-lg text-sm font-medium shadow">Asistencia</button>
               <button @click="view='cert'" :class="view==='cert' ? 'bg-blue-600 text-white' : 'bg-white'" class="px-4 py-2 rounded-lg text-sm font-medium shadow">Constancias</button>
             </div>
 
-            <div x-show="view==='vol'" class="flex justify-end mb-3">
-              <button @click="newPerson()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm">＋ Nueva persona</button>
-            </div>
+            <!-- PERSONAS -->
+            <div x-show="view==='vol'">
+              <div class="flex flex-wrap gap-2 justify-end mb-3">
+                <button @click="exportPeopleXLS()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm">📥 Exportar XLS</button>
+                <button @click="newPerson()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm">＋ Nueva persona</button>
+              </div>
 
-            <div x-show="view==='vol' && showPersonForm" class="bg-white rounded-lg shadow p-4 mb-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-              <h3 class="md:col-span-2 font-bold text-slate-700" x-text="personForm.id ? 'Editar / completar ficha' : 'Alta de persona'"></h3>
-              <div><label class="block font-medium text-slate-700 mb-1">Nombres *</label>
-                <input x-model="personForm.nombres" class="w-full border border-slate-300 rounded-lg p-2" /></div>
-              <div><label class="block font-medium text-slate-700 mb-1">Apellidos *</label>
-                <input x-model="personForm.apellidos" class="w-full border border-slate-300 rounded-lg p-2" /></div>
-              <div><label class="block font-medium text-slate-700 mb-1">Comisión *</label>
-                <select x-model="personForm.commission_id" class="w-full border border-slate-300 rounded-lg p-2">
-                  <option value="">-- Selecciona --</option>
-                  <template x-for="c in commissions" :key="c.id">
-                    <option :value="c.id" x-text="c.name"></option>
-                  </template>
-                </select></div>
-              <div><label class="block font-medium text-slate-700 mb-1">Rol interno</label>
-                <input x-model="personForm.internal_role" class="w-full border border-slate-300 rounded-lg p-2" placeholder="Ej: Voluntario de Proyectos" /></div>
-              <div><label class="block font-medium text-slate-700 mb-1">Teléfono</label>
-                <input x-model="personForm.phone" class="w-full border border-slate-300 rounded-lg p-2" placeholder="51 999 999 999" /></div>
-              <div><label class="block font-medium text-slate-700 mb-1">Correo</label>
-                <input type="email" x-model="personForm.email" class="w-full border border-slate-300 rounded-lg p-2" /></div>
-              <div><label class="block font-medium text-slate-700 mb-1">Carrera / especialización</label>
-                <input x-model="personForm.career" class="w-full border border-slate-300 rounded-lg p-2" /></div>
-              <div><label class="block font-medium text-slate-700 mb-1">Fecha de ingreso</label>
-                <input type="date" x-model="personForm.admission_date" :max="today" class="w-full border border-slate-300 rounded-lg p-2" /></div>
-
-              <template x-if="fullForm">
-                <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-3 border-t pt-3 mt-1">
-                  <h4 class="md:col-span-2 font-semibold text-slate-500 text-xs uppercase">Ficha completa</h4>
-                  <div><label class="block font-medium text-slate-700 mb-1">DNI / Documento</label>
-                    <input x-model="personForm.dni" class="w-full border border-slate-300 rounded-lg p-2" /></div>
-                  <div><label class="block font-medium text-slate-700 mb-1">Ciudad, provincia y distrito</label>
-                    <input x-model="personForm.city" class="w-full border border-slate-300 rounded-lg p-2" /></div>
-                  <div><label class="block font-medium text-slate-700 mb-1">Fecha de nacimiento</label>
-                    <input type="date" x-model="personForm.birth_date" class="w-full border border-slate-300 rounded-lg p-2" /></div>
-                  <div><label class="block font-medium text-slate-700 mb-1">Nivel de estudios</label>
-                    <input x-model="personForm.education_level" class="w-full border border-slate-300 rounded-lg p-2" /></div>
-                  <div><label class="block font-medium text-slate-700 mb-1">Institución educativa</label>
-                    <input x-model="personForm.institution" class="w-full border border-slate-300 rounded-lg p-2" /></div>
-                  <div><label class="block font-medium text-slate-700 mb-1">¿Trabaja?</label>
-                    <input x-model="personForm.works" class="w-full border border-slate-300 rounded-lg p-2" placeholder="Si / No" /></div>
-                  <div><label class="block font-medium text-slate-700 mb-1">Alergias o afines</label>
-                    <input x-model="personForm.allergies" class="w-full border border-slate-300 rounded-lg p-2" /></div>
-                  <div><label class="block font-medium text-slate-700 mb-1">EPS o seguro</label>
-                    <input x-model="personForm.insurance" class="w-full border border-slate-300 rounded-lg p-2" /></div>
-                  <div><label class="block font-medium text-slate-700 mb-1">Contacto de emergencia</label>
-                    <input x-model="personForm.emergency_contact" class="w-full border border-slate-300 rounded-lg p-2" /></div>
-                  <div><label class="block font-medium text-slate-700 mb-1">Parentesco</label>
-                    <input x-model="personForm.emergency_relationship" class="w-full border border-slate-300 rounded-lg p-2" /></div>
-                  <div><label class="block font-medium text-slate-700 mb-1">Teléfono de emergencia</label>
-                    <input x-model="personForm.emergency_phone" class="w-full border border-slate-300 rounded-lg p-2" /></div>
-                  <div><label class="block font-medium text-slate-700 mb-1">Hobbies</label>
-                    <input x-model="personForm.hobbies" class="w-full border border-slate-300 rounded-lg p-2" /></div>
-                  <div><label class="block font-medium text-slate-700 mb-1">Mascotas</label>
-                    <input x-model="personForm.pets" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+              <div x-show="showPersonForm" class="bg-white rounded-lg shadow p-4 mb-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                <h3 class="md:col-span-2 font-bold text-slate-700" x-text="personForm.id ? 'Editar / completar ficha' : 'Alta de persona'"></h3>
+                <div><label class="block font-medium text-slate-700 mb-1">Nombres *</label>
+                  <input x-model="personForm.nombres" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                <div><label class="block font-medium text-slate-700 mb-1">Apellidos *</label>
+                  <input x-model="personForm.apellidos" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                <div><label class="block font-medium text-slate-700 mb-1">Comisión *</label>
+                  <select x-model="personForm.commission_id" class="w-full border border-slate-300 rounded-lg p-2">
+                    <option value="">-- Selecciona --</option>
+                    <template x-for="c in commissions" :key="c.id"><option :value="c.id" x-text="c.name"></option></template>
+                  </select></div>
+                <div><label class="block font-medium text-slate-700 mb-1">Rol interno</label>
+                  <input x-model="personForm.internal_role" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                <div><label class="block font-medium text-slate-700 mb-1">Teléfono</label>
+                  <input x-model="personForm.phone" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                <div><label class="block font-medium text-slate-700 mb-1">Correo</label>
+                  <input type="email" x-model="personForm.email" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                <div><label class="block font-medium text-slate-700 mb-1">Carrera</label>
+                  <input x-model="personForm.career" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                <div><label class="block font-medium text-slate-700 mb-1">Fecha de ingreso</label>
+                  <input type="date" x-model="personForm.admission_date" :max="today" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                <div class="md:col-span-2">
+                  <label class="block font-medium text-slate-700 mb-1">Foto</label>
+                  <div class="flex items-center gap-3">
+                    <img x-show="personForm.photo_url" :src="personForm.photo_url" class="h-16 w-16 rounded object-cover" />
+                    <input type="file" accept="image/*" @change="uploadPhoto($event.target.files[0])" class="text-sm" />
+                  </div>
                 </div>
-              </template>
 
-              <div class="md:col-span-2"><label class="block font-medium text-slate-700 mb-1">Observaciones</label>
-                <input x-model="personForm.notes" class="w-full border border-slate-300 rounded-lg p-2" /></div>
-              <div class="md:col-span-2 flex gap-2">
-                <button @click="savePerson()" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm">Guardar</button>
-                <button @click="showPersonForm = false" class="bg-slate-200 text-slate-700 px-5 py-2 rounded-lg text-sm">Cancelar</button>
-              </div>
-            </div>
+                <template x-if="fullForm">
+                  <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-3 border-t pt-3 mt-1">
+                    <h4 class="md:col-span-2 font-semibold text-slate-500 text-xs uppercase">Ficha completa</h4>
+                    <div><label class="block font-medium text-slate-700 mb-1">DNI</label><input x-model="personForm.dni" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                    <div><label class="block font-medium text-slate-700 mb-1">Ciudad</label><input x-model="personForm.city" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                    <div><label class="block font-medium text-slate-700 mb-1">Fecha nacimiento</label><input type="date" x-model="personForm.birth_date" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                    <div><label class="block font-medium text-slate-700 mb-1">Nivel de estudios</label><input x-model="personForm.education_level" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                    <div><label class="block font-medium text-slate-700 mb-1">Institución</label><input x-model="personForm.institution" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                    <div><label class="block font-medium text-slate-700 mb-1">¿Trabaja?</label><input x-model="personForm.works" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                    <div><label class="block font-medium text-slate-700 mb-1">Alergias</label><input x-model="personForm.allergies" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                    <div><label class="block font-medium text-slate-700 mb-1">Seguro</label><input x-model="personForm.insurance" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                    <div><label class="block font-medium text-slate-700 mb-1">Contacto emergencia</label><input x-model="personForm.emergency_contact" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                    <div><label class="block font-medium text-slate-700 mb-1">Parentesco</label><input x-model="personForm.emergency_relationship" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                    <div><label class="block font-medium text-slate-700 mb-1">Tel. emergencia</label><input x-model="personForm.emergency_phone" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                    <div><label class="block font-medium text-slate-700 mb-1">Hobbies</label><input x-model="personForm.hobbies" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                    <div><label class="block font-medium text-slate-700 mb-1">Mascotas</label><input x-model="personForm.pets" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                  </div>
+                </template>
 
-            <div x-show="view==='vol'" class="bg-white rounded-lg shadow p-3 mb-3 grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-              <div>
-                <label class="block font-medium text-slate-700 mb-1">Filtrar por comisión</label>
-                <select x-model="filterCommission" @change="pageVol = 1" class="w-full border border-slate-300 rounded-lg p-2">
-                  <option value="">-- Todas --</option>
-                  <template x-for="c in commissions" :key="c.id">
-                    <option :value="c.id" x-text="c.name"></option>
-                  </template>
-                </select>
+                <div class="md:col-span-2"><label class="block font-medium text-slate-700 mb-1">Observaciones</label>
+                  <input x-model="personForm.notes" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                <div class="md:col-span-2 flex gap-2">
+                  <button @click="savePerson()" class="bg-blue-600 text-white px-5 py-2 rounded-lg text-sm">Guardar</button>
+                  <button @click="showPersonForm = false" class="bg-slate-200 text-slate-700 px-5 py-2 rounded-lg text-sm">Cancelar</button>
+                </div>
               </div>
-              <div class="md:col-span-2">
-                <label class="block font-medium text-slate-700 mb-1">Buscar</label>
-                <input type="text" x-model="filterSearch" @input="pageVol = 1" placeholder="Nombre, apellido, correo o DNI..." class="w-full border border-slate-300 rounded-lg p-2" />
-              </div>
-              <div class="md:col-span-3 text-xs text-slate-500">
-                Mostrando <span x-text="filteredVols.length"></span> de <span x-text="volunteers.length"></span> personas
-              </div>
-            </div>
 
-            <div x-show="view==='vol'" class="bg-white rounded-lg shadow overflow-x-auto">
-              <table class="min-w-full text-sm">
-                <thead class="bg-slate-50 text-left text-slate-600">
-                  <tr><th class="p-3">Voluntario</th><th class="p-3">Comisión</th><th class="p-3">Rol</th><th class="p-3">Estado</th><th class="p-3">Ingreso</th><th class="p-3">Acciones</th></tr>
-                </thead>
-                <tbody>
-                  <template x-for="v in pagedVols" :key="v.id">
-                    <tr class="border-t">
-                      <td class="p-3" x-text="fullName(v)"></td>
-                      <td class="p-3" x-text="commissionName(v.commission_id)"></td>
-                      <td class="p-3" x-text="v.internal_role || ''"></td>
-                      <td class="p-3"><span class="px-2 py-1 rounded text-xs"
-                        :class="v.status==='activo' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
-                        x-text="v.status"></span></td>
-                      <td class="p-3" x-text="v.admission_date || ''"></td>
-                      <td class="p-3">
-                        <button @click="editPerson(v)" class="text-blue-600 text-xs underline mr-2">Ficha completa</button>
-                        <button x-show="v.status==='activo'" @click="darBaja(v)" class="text-red-600 text-xs underline mr-2">Baja</button>
-                        <button x-show="v.status==='baja'" @click="reactivar(v)" class="text-green-600 text-xs underline">Reactivar</button>
-                      </td>
-                    </tr>
-                  </template>
-                </tbody>
-              </table>
-              <div class="flex items-center justify-end gap-2 p-3 text-sm">
-                <button @click="pageVol = Math.max(1, pageVol - 1)" :disabled="pageVol <= 1" class="px-3 py-1 rounded bg-slate-200 disabled:opacity-40">Anterior</button>
-                <span x-text="pageVol + ' / ' + totalPagesVols + ' · ' + volunteers.length + ' personas'"></span>
-                <button @click="pageVol = Math.min(totalPagesVols, pageVol + 1)" :disabled="pageVol >= totalPagesVols" class="px-3 py-1 rounded bg-slate-200 disabled:opacity-40">Siguiente</button>
+              <div class="bg-white rounded-lg shadow p-3 mb-3 grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                <div><label class="block font-medium text-slate-700 mb-1">Filtrar por comisión</label>
+                  <select x-model="filterCommission" @change="pageVol = 1" class="w-full border border-slate-300 rounded-lg p-2">
+                    <option value="">-- Todas --</option>
+                    <template x-for="c in commissions" :key="c.id"><option :value="c.id" x-text="c.name"></option></template>
+                  </select></div>
+                <div class="md:col-span-2"><label class="block font-medium text-slate-700 mb-1">Buscar</label>
+                  <input type="text" x-model="filterSearch" @input="pageVol = 1" placeholder="Nombre, apellido, correo o DNI..." class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                <div class="md:col-span-3 text-xs text-slate-500">Mostrando <span x-text="filteredVols.length"></span> de <span x-text="volunteers.length"></span></div>
               </div>
-            </div>
 
-            <div x-show="view==='rep'">
-              <div class="flex justify-between items-center mb-3">
-                <h2 class="font-bold text-slate-700">Total horas visibles: <span x-text="totalHours(hours)"></span></h2>
-                <button @click="exportXLS" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">Exportar XLS</button>
-              </div>
-              <div class="bg-white rounded-lg shadow p-4 mb-4">
-                <h3 class="text-sm font-semibold text-slate-600 mb-2">Horas por mes y actividad</h3>
-                <canvas id="chartHours" height="110"></canvas>
-              </div>
               <div class="bg-white rounded-lg shadow overflow-x-auto">
                 <table class="min-w-full text-sm">
                   <thead class="bg-slate-50 text-left text-slate-600">
-                    <tr><th class="p-3">Fecha</th><th class="p-3">Voluntario</th><th class="p-3">Comisión</th><th class="p-3">Actividad</th><th class="p-3">Horas</th><th class="p-3">Estado</th><th class="p-3"></th></tr>
+                    <tr><th class="p-3">Foto</th><th class="p-3">Voluntario</th><th class="p-3">Comisión</th><th class="p-3">Rol</th><th class="p-3">Estado</th><th class="p-3">Ingreso</th><th class="p-3">Acciones</th></tr>
+                  </thead>
+                  <tbody>
+                    <template x-for="v in pagedVols" :key="v.id">
+                      <tr class="border-t">
+                        <td class="p-3">
+                          <img x-show="v.photo_url" :src="v.photo_url" class="h-8 w-8 rounded-full object-cover" />
+                          <span x-show="!v.photo_url" class="text-slate-300">👤</span>
+                        </td>
+                        <td class="p-3" x-text="fullName(v)"></td>
+                        <td class="p-3" x-text="commissionName(v.commission_id)"></td>
+                        <td class="p-3" x-text="v.internal_role || ''"></td>
+                        <td class="p-3"><span class="px-2 py-1 rounded text-xs"
+                          :class="v.status==='activo' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'" x-text="v.status"></span></td>
+                        <td class="p-3" x-text="v.admission_date || ''"></td>
+                        <td class="p-3">
+                          <button @click="editPerson(v)" class="text-blue-600 text-xs underline mr-2">Ficha</button>
+                          <button x-show="v.status==='activo'" @click="darBaja(v)" class="text-red-600 text-xs underline mr-2">Baja</button>
+                          <button x-show="v.status==='baja'" @click="reactivar(v)" class="text-green-600 text-xs underline">Reactivar</button>
+                        </td>
+                      </tr>
+                    </template>
+                  </tbody>
+                </table>
+                <div class="flex items-center justify-end gap-2 p-3 text-sm">
+                  <button @click="pageVol = Math.max(1, pageVol - 1)" :disabled="pageVol <= 1" class="px-3 py-1 rounded bg-slate-200 disabled:opacity-40">Anterior</button>
+                  <span x-text="pageVol + ' / ' + totalPagesVols + ' · ' + filteredVols.length + ' personas'"></span>
+                  <button @click="pageVol = Math.min(totalPagesVols, pageVol + 1)" :disabled="pageVol >= totalPagesVols" class="px-3 py-1 rounded bg-slate-200 disabled:opacity-40">Siguiente</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- BAJAS -->
+            <div x-show="view==='bajas'">
+              <h2 class="font-bold text-slate-700 mb-3">Personas dadas de baja (<span x-text="bajas.length"></span>)</h2>
+              <div class="bg-white rounded-lg shadow overflow-x-auto">
+                <table class="min-w-full text-sm">
+                  <thead class="bg-slate-50 text-left text-slate-600">
+                    <tr><th class="p-3">Voluntario</th><th class="p-3">Comisión</th><th class="p-3">Rol</th><th class="p-3">Fecha baja</th><th class="p-3">Motivo</th><th class="p-3">Acciones</th></tr>
+                  </thead>
+                  <tbody>
+                    <template x-for="v in bajas" :key="v.id">
+                      <tr class="border-t">
+                        <td class="p-3" x-text="fullName(v)"></td>
+                        <td class="p-3" x-text="commissionName(v.commission_id)"></td>
+                        <td class="p-3" x-text="v.internal_role || ''"></td>
+                        <td class="p-3" x-text="v.departure_date || ''"></td>
+                        <td class="p-3" x-text="v.departure_reason || ''"></td>
+                        <td class="p-3"><button @click="reactivar(v)" class="text-green-600 text-xs underline">Reactivar</button></td>
+                      </tr>
+                    </template>
+                    <tr x-show="bajas.length === 0"><td colspan="6" class="p-6 text-center text-slate-400">No hay personas dadas de baja.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- REGISTRAR HORAS + ASISTENCIA (RRHH) -->
+            <div x-show="view==='reg'">
+              <form @submit.prevent="submitHour" class="bg-white rounded-lg shadow p-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div><label class="block font-medium text-slate-700 mb-1">Voluntario</label>
+                  <select x-model="form.volunteer_id" class="w-full border border-slate-300 rounded-lg p-2">
+                    <option value="">-- Selecciona --</option>
+                    <template x-for="v in regVols" :key="v.id"><option :value="v.id" x-text="fullName(v)"></option></template>
+                  </select></div>
+                <div><label class="block font-medium text-slate-700 mb-1">Fecha de la reunión/actividad</label>
+                  <input type="date" x-model="form.entry_date" :max="today" :disabled="!form.volunteer_id" class="w-full border border-slate-300 rounded-lg p-2 disabled:bg-slate-100" /></div>
+
+                <div class="md:col-span-2">
+                  <label class="block font-medium text-slate-700 mb-1">Asistencia</label>
+                  <div class="flex gap-6" :class="form.volunteer_id ? '' : 'opacity-50 pointer-events-none'">
+                    <label class="flex items-center gap-2"><input type="radio" x-model="form.attended" value="si" /><span class="text-green-700 font-medium">✓ Asistió</span></label>
+                    <label class="flex items-center gap-2"><input type="radio" x-model="form.attended" value="no" /><span class="text-red-700 font-medium">✗ No asistió</span></label>
+                  </div>
+                </div>
+
+                <div x-show="form.attended === 'si'"><label class="block font-medium text-slate-700 mb-1">Actividad</label>
+                  <select x-model="form.activity_id" class="w-full border border-slate-300 rounded-lg p-2">
+                    <option value="">-- Selecciona --</option>
+                    <template x-for="a in activities" :key="a.id"><option :value="a.id" x-text="a.name"></option></template>
+                  </select></div>
+                <div x-show="form.attended === 'si'"><label class="block font-medium text-slate-700 mb-1">Horas</label>
+                  <input type="number" step="0.25" min="0.25" max="24" x-model="form.hours" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                <div class="md:col-span-2" x-show="form.attended === 'si'"><label class="block font-medium text-slate-700 mb-1">Descripción</label>
+                  <input type="text" x-model="form.description" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+
+                <div x-show="form.attended === 'no'"><label class="block font-medium text-slate-700 mb-1">¿La falta fue justificada?</label>
+                  <select x-model="form.justified" class="w-full border border-slate-300 rounded-lg p-2">
+                    <option value="">-- Selecciona --</option>
+                    <option value="si">Justificada</option>
+                    <option value="no">Injustificada</option>
+                  </select></div>
+                <div class="md:col-span-2" x-show="form.attended === 'no'"><label class="block font-medium text-slate-700 mb-1">Motivo / observación</label>
+                  <textarea x-model="form.justification" rows="2" class="w-full border border-slate-300 rounded-lg p-2" placeholder="Ej: Enfermedad, trámite personal, trabajo..."></textarea></div>
+
+                <div class="md:col-span-2"><button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700">Registrar</button></div>
+              </form>
+            </div>
+
+            <!-- HORAS REGISTRADAS -->
+            <div x-show="view==='rep'">
+              <div class="flex justify-between items-center mb-3">
+                <h2 class="font-bold text-slate-700">Total: <span x-text="totalHours(hours)"></span> h</h2>
+                <div class="flex gap-2">
+                  <label class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm cursor-pointer hover:bg-green-700">
+                    📤 Importar XLS
+                    <input type="file" accept=".xlsx,.xls" @change="importHoursFile($event.target.files[0]); $event.target.value=''" class="hidden" />
+                  </label>
+                  <button @click="downloadHoursTemplate()" class="bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm">📋 Plantilla (para importar)</button>
+                  <button @click="exportXLS" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">📥 Exportar XLS</button>
+                </div>
+              </div>
+              <div class="relative bg-white rounded-lg shadow p-4 mb-4" style="height:320px"><canvas id="chartHours"></canvas></div>
+
+              <div class="bg-white rounded-lg shadow overflow-x-auto">
+                <table class="min-w-full text-sm">
+                  <thead class="bg-slate-50 text-left text-slate-600">
+                    <tr><th class="p-3">Fecha</th><th class="p-3">Voluntario</th><th class="p-3">Comisión</th><th class="p-3">Actividad</th><th class="p-3">Horas</th><th class="p-3">Estado</th><th class="p-3">Acciones</th></tr>
                   </thead>
                   <tbody>
                     <template x-for="h in pagedHours" :key="h.id">
                       <tr class="border-t">
-                        <td class="p-3" x-text="h.entry_date"></td>
+                        <td class="p-3"><template x-if="hourEdit===h.id"><input type="date" x-model="hourForm.entry_date" :max="today" class="border p-1 rounded text-xs" /></template><span x-show="hourEdit!==h.id" x-text="h.entry_date"></span></td>
                         <td class="p-3" x-text="fullName(h.people)"></td>
                         <td class="p-3" x-text="commissionName(h.commission_id)"></td>
-                        <td class="p-3" x-text="h.activities ? h.activities.name : ''"></td>
-                        <td class="p-3" x-text="h.hours"></td>
+                        <td class="p-3">
+                          <template x-if="hourEdit===h.id">
+                            <select x-model="hourForm.activity_id" class="border p-1 rounded text-xs">
+                              <template x-for="a in activities" :key="a.id"><option :value="a.id" x-text="a.name"></option></template>
+                            </select>
+                          </template>
+                          <span x-show="hourEdit!==h.id" x-text="h.activities ? h.activities.name : ''"></span>
+                        </td>
+                        <td class="p-3"><template x-if="hourEdit===h.id"><input type="number" step="0.25" min="0.25" max="24" x-model="hourForm.hours" class="border p-1 rounded w-16 text-xs" /></template><span x-show="hourEdit!==h.id" x-text="h.hours"></span></td>
                         <td class="p-3" x-text="h.status"></td>
                         <td class="p-3">
-                          <button x-show="h.status==='activo'" @click="annul(h)" class="text-red-600 text-xs underline">Anular</button>
+                          <div x-show="hourEdit!==h.id" class="flex gap-2">
+                            <button @click="openHourEdit(h)" class="text-blue-600 text-xs underline">Editar</button>
+                            <button @click="deleteHour(h)" class="text-red-600 text-xs underline">Eliminar</button>
+                            <button x-show="h.status==='activo'" @click="annul(h)" class="text-amber-600 text-xs underline">Anular</button>
+                          </div>
+                          <div x-show="hourEdit===h.id" class="flex gap-2">
+                            <button @click="saveHourEdit()" class="text-green-600 text-xs underline">Guardar</button>
+                            <button @click="hourEdit = null" class="text-slate-600 text-xs underline">Cancelar</button>
+                          </div>
                         </td>
                       </tr>
                     </template>
@@ -351,21 +387,68 @@
               </div>
             </div>
 
+            <!-- ASISTENCIA (RRHH) -->
+            <div x-show="view==='att'">
+              <div class="bg-white rounded-lg shadow p-4 mb-4 grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                <div><label class="block font-medium text-slate-700 mb-1">Comisión</label>
+                  <select x-model="attFilter.commission_id" @change="loadAttendance()" class="w-full border border-slate-300 rounded-lg p-2">
+                    <option value="">-- Todas --</option>
+                    <template x-for="c in commissions" :key="c.id"><option :value="c.id" x-text="c.name"></option></template>
+                  </select></div>
+                <div><label class="block font-medium text-slate-700 mb-1">Desde</label>
+                  <input type="date" x-model="attFilter.from" @change="loadAttendance()" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                <div><label class="block font-medium text-slate-700 mb-1">Hasta</label>
+                  <input type="date" x-model="attFilter.to" @change="loadAttendance()" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div class="relative bg-white rounded-lg shadow p-4" style="height:280px"><canvas id="chartAtt"></canvas></div>
+                <div class="bg-white rounded-lg shadow p-4 text-sm space-y-2">
+                  <h3 class="font-bold text-slate-700">Resumen</h3>
+                  <p>Total registros: <strong x-text="attendanceData.length"></strong></p>
+                  <p>Asistencias: <strong class="text-green-600" x-text="attendanceData.filter(a=>a.attended).length"></strong></p>
+                  <p>Inasistencias: <strong class="text-red-600" x-text="attendanceData.filter(a=>!a.attended).length"></strong></p>
+                  <p>Inasistencias justificadas: <strong class="text-amber-600" x-text="attendanceData.filter(a=>!a.attended && a.justified).length"></strong></p>
+                </div>
+              </div>
+
+              <div class="bg-white rounded-lg shadow overflow-x-auto">
+                <table class="min-w-full text-sm">
+                  <thead class="bg-slate-50 text-left text-slate-600">
+                    <tr><th class="p-3">Fecha</th><th class="p-3">Voluntario</th><th class="p-3">Comisión</th><th class="p-3">Actividad</th><th class="p-3">Estado</th><th class="p-3">Justificación</th></tr>
+                  </thead>
+                  <tbody>
+                    <template x-for="a in attendanceData" :key="a.id">
+                      <tr class="border-t">
+                        <td class="p-3" x-text="a.meeting_date"></td>
+                        <td class="p-3" x-text="fullName(a.people)"></td>
+                        <td class="p-3" x-text="commissionName(a.commission_id)"></td>
+                        <td class="p-3" x-text="a.activities ? a.activities.name : ''"></td>
+                        <td class="p-3">
+                          <span class="px-2 py-1 rounded text-xs"
+                            :class="a.attended ? 'bg-green-100 text-green-700' : (a.justified ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700')"
+                            x-text="a.attended ? 'Asistió' : (a.justified ? 'Inasist. justificada' : 'Inasistencia')"></span>
+                        </td>
+                        <td class="p-3" x-text="a.justification || '—'"></td>
+                      </tr>
+                    </template>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- CONSTANCIAS -->
             <div x-show="view==='cert'">
               <div class="bg-white rounded-lg shadow p-4 grid grid-cols-1 md:grid-cols-5 gap-3 text-sm mb-4">
                 <div><label class="block font-medium text-slate-700 mb-1">Comisión</label>
                   <select x-model="certForm.commission_id" @change="onCertCommission()" class="w-full border border-slate-300 rounded-lg p-2">
                     <option value="">-- Todas --</option>
-                    <template x-for="c in commissions" :key="c.id">
-                      <option :value="c.id" x-text="c.name"></option>
-                    </template>
+                    <template x-for="c in commissions" :key="c.id"><option :value="c.id" x-text="c.name"></option></template>
                   </select></div>
                 <div><label class="block font-medium text-slate-700 mb-1">Persona</label>
                   <select x-model="certForm.person_id" @change="onCertPerson()" class="w-full border border-slate-300 rounded-lg p-2">
                     <option value="">-- Selecciona --</option>
-                    <template x-for="v in certPeople" :key="v.id">
-                      <option :value="v.id" x-text="fullName(v)"></option>
-                    </template>
+                    <template x-for="v in certPeople" :key="v.id"><option :value="v.id" x-text="fullName(v)"></option></template>
                   </select></div>
                 <div><label class="block font-medium text-slate-700 mb-1">Desde</label>
                   <input type="date" x-model="certForm.start_date" class="w-full border border-slate-300 rounded-lg p-2" /></div>
@@ -375,11 +458,10 @@
                   <button @click="generateCert()" :disabled="!certHasHours"
                     :class="certHasHours ? 'bg-blue-600 hover:bg-blue-700' : 'bg-slate-300 cursor-not-allowed'"
                     class="text-white px-5 py-2 rounded-lg text-sm w-full">Generar</button>
-                  <p x-show="!certHasHours" class="text-xs text-slate-500 mt-1">Se activa solo si la persona tiene horas en el rango.</p>
+                  <p x-show="!certHasHours" class="text-xs text-slate-500 mt-1">Requiere horas en el rango.</p>
                 </div>
               </div>
-
-              <div x-show="certPreview" class="bg-white rounded-lg shadow p-4 mb-4">
+              <div x-show="certPreview" class="bg-white rounded-lg shadow p-4">
                 <div x-html="certHtml()"></div>
                 <button @click="printCert()" class="mt-4 bg-blue-600 text-white px-5 py-2 rounded-lg text-sm">Imprimir / PDF</button>
               </div>
@@ -393,18 +475,20 @@
             <div class="flex flex-wrap gap-2 mb-4">
               <button @click="view='vol'" :class="view==='vol' ? 'bg-blue-600 text-white' : 'bg-white'" class="px-4 py-2 rounded-lg text-sm font-medium shadow">Mis voluntarios</button>
               <button @click="view='reg'" :class="view==='reg' ? 'bg-blue-600 text-white' : 'bg-white'" class="px-4 py-2 rounded-lg text-sm font-medium shadow">Registrar horas</button>
-              <button x-show="isCoordinator" @click="view='auth'" :class="view==='auth' ? 'bg-blue-600 text-white' : 'bg-white'" class="px-4 py-2 rounded-lg text-sm font-medium shadow">Autorizar sub</button>
-              <button @click="view='rep'" :class="view==='rep' ? 'bg-blue-600 text-white' : 'bg-white'" class="px-4 py-2 rounded-lg text-sm font-medium shadow">Reporte</button>
+              <button x-show="isCoordinator" @click="view='auth'" :class="view==='auth' ? 'bg-blue-600 text-white' : 'bg-white'" class="px-4 py-2 rounded-lg text-sm font-medium shadow">Autorizar subs</button>
+              <button @click="view='att'; $nextTick(() => loadAttendance())" :class="view==='att' ? 'bg-blue-600 text-white' : 'bg-white'" class="px-4 py-2 rounded-lg text-sm font-medium shadow">Asistencia</button>
+              <button @click="view='rep'; $nextTick(() => renderChart())" :class="view==='rep' ? 'bg-blue-600 text-white' : 'bg-white'" class="px-4 py-2 rounded-lg text-sm font-medium shadow">Reporte</button>
             </div>
 
             <div x-show="view==='vol'" class="bg-white rounded-lg shadow overflow-x-auto">
               <table class="min-w-full text-sm">
                 <thead class="bg-slate-50 text-left text-slate-600">
-                  <tr><th class="p-3">Voluntario</th><th class="p-3">Rol</th><th class="p-3">Estado</th><th class="p-3">Contacto</th></tr>
+                  <tr><th class="p-3">Foto</th><th class="p-3">Voluntario</th><th class="p-3">Rol</th><th class="p-3">Estado</th><th class="p-3">Contacto</th></tr>
                 </thead>
                 <tbody>
                   <template x-for="v in volunteers" :key="v.id">
                     <tr class="border-t">
+                      <td class="p-3"><img x-show="v.photo_url" :src="v.photo_url" class="h-8 w-8 rounded-full object-cover" /><span x-show="!v.photo_url" class="text-slate-300">👤</span></td>
                       <td class="p-3" x-text="fullName(v)"></td>
                       <td class="p-3" x-text="v.internal_role || ''"></td>
                       <td class="p-3" x-text="v.status"></td>
@@ -415,47 +499,49 @@
               </table>
             </div>
 
+            <!-- REGISTRAR HORAS + ASISTENCIA (COORDINADOR) -->
             <div x-show="view==='reg'">
               <template x-if="!canWrite">
-                <div class="bg-amber-50 border border-amber-300 text-amber-800 p-4 rounded-lg text-sm">
-                  El coordinador de tu comisión aún no te autoriza a registrar horas. Tienes acceso de solo lectura.
-                </div>
+                <div class="bg-amber-50 border border-amber-300 text-amber-800 p-4 rounded-lg text-sm">Sin autorización para registrar horas.</div>
               </template>
               <template x-if="canWrite">
                 <form @submit.prevent="submitHour" class="bg-white rounded-lg shadow p-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <label class="block font-medium text-slate-700 mb-1">Voluntario</label>
+                  <div><label class="block font-medium text-slate-700 mb-1">Voluntario</label>
                     <select x-model="form.volunteer_id" class="w-full border border-slate-300 rounded-lg p-2">
                       <option value="">-- Selecciona --</option>
-                      <template x-for="v in activeVols" :key="v.id">
-                        <option :value="v.id" x-text="fullName(v)"></option>
-                      </template>
-                    </select>
+                      <template x-for="v in regVols" :key="v.id"><option :value="v.id" x-text="fullName(v)"></option></template>
+                    </select></div>
+                  <div><label class="block font-medium text-slate-700 mb-1">Fecha de la reunión/actividad</label>
+                    <input type="date" x-model="form.entry_date" :max="today" :disabled="!form.volunteer_id" class="w-full border border-slate-300 rounded-lg p-2 disabled:bg-slate-100" /></div>
+
+                  <div class="md:col-span-2">
+                    <label class="block font-medium text-slate-700 mb-1">Asistencia</label>
+                    <div class="flex gap-6" :class="form.volunteer_id ? '' : 'opacity-50 pointer-events-none'">
+                      <label class="flex items-center gap-2"><input type="radio" x-model="form.attended" value="si" /><span class="text-green-700 font-medium">✓ Asistió</span></label>
+                      <label class="flex items-center gap-2"><input type="radio" x-model="form.attended" value="no" /><span class="text-red-700 font-medium">✗ No asistió</span></label>
+                    </div>
                   </div>
-                  <div>
-                    <label class="block font-medium text-slate-700 mb-1">Actividad</label>
+
+                  <div x-show="form.attended === 'si'"><label class="block font-medium text-slate-700 mb-1">Actividad</label>
                     <select x-model="form.activity_id" class="w-full border border-slate-300 rounded-lg p-2">
                       <option value="">-- Selecciona --</option>
-                      <template x-for="a in activities" :key="a.id">
-                        <option :value="a.id" x-text="a.name"></option>
-                      </template>
-                    </select>
-                  </div>
-                  <div>
-                    <label class="block font-medium text-slate-700 mb-1">Fecha</label>
-                    <input type="date" x-model="form.entry_date" :max="today" class="w-full border border-slate-300 rounded-lg p-2" />
-                  </div>
-                  <div>
-                    <label class="block font-medium text-slate-700 mb-1">Horas</label>
-                    <input type="number" step="0.25" min="0.25" max="24" x-model="form.hours" class="w-full border border-slate-300 rounded-lg p-2" />
-                  </div>
-                  <div class="md:col-span-2">
-                    <label class="block font-medium text-slate-700 mb-1">Descripción (opcional)</label>
-                    <input type="text" x-model="form.description" class="w-full border border-slate-300 rounded-lg p-2" placeholder="Ej: Reunión semanal de comisión" />
-                  </div>
-                  <div class="md:col-span-2">
-                    <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700">Registrar</button>
-                  </div>
+                      <template x-for="a in activities" :key="a.id"><option :value="a.id" x-text="a.name"></option></template>
+                    </select></div>
+                  <div x-show="form.attended === 'si'"><label class="block font-medium text-slate-700 mb-1">Horas</label>
+                    <input type="number" step="0.25" min="0.25" max="24" x-model="form.hours" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                  <div class="md:col-span-2" x-show="form.attended === 'si'"><label class="block font-medium text-slate-700 mb-1">Descripción</label>
+                    <input type="text" x-model="form.description" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+
+                  <div x-show="form.attended === 'no'"><label class="block font-medium text-slate-700 mb-1">¿La falta fue justificada?</label>
+                    <select x-model="form.justified" class="w-full border border-slate-300 rounded-lg p-2">
+                      <option value="">-- Selecciona --</option>
+                      <option value="si">Justificada</option>
+                      <option value="no">Injustificada</option>
+                    </select></div>
+                  <div class="md:col-span-2" x-show="form.attended === 'no'"><label class="block font-medium text-slate-700 mb-1">Motivo / observación</label>
+                    <textarea x-model="form.justification" rows="2" class="w-full border border-slate-300 rounded-lg p-2" placeholder="Ej: Enfermedad, trámite personal, trabajo..."></textarea></div>
+
+                  <div class="md:col-span-2"><button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700">Registrar</button></div>
                 </form>
               </template>
             </div>
@@ -463,20 +549,20 @@
             <div x-show="view==='auth' && isCoordinator" class="bg-white rounded-lg shadow overflow-x-auto">
               <table class="min-w-full text-sm">
                 <thead class="bg-slate-50 text-left text-slate-600">
-                  <tr><th class="p-3">Subcoordinador</th><th class="p-3">Puede registrar</th><th class="p-3"></th></tr>
+                  <tr><th class="p-3">Subcuenta</th><th class="p-3">Puede registrar</th><th class="p-3"></th></tr>
                 </thead>
                 <tbody>
-                  <template x-for="s in subs" :key="s.id">
+                  <template x-for="p in subAccounts" :key="p.id">
                     <tr class="border-t">
-                      <td class="p-3" x-text="fullName(s.people)"></td>
+                      <td class="p-3" x-text="p.email"></td>
                       <td class="p-3">
                         <span class="px-2 py-1 rounded text-xs"
-                          :class="s.can_write ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'"
-                          x-text="s.can_write ? 'SÍ' : 'NO'"></span>
+                          :class="p.can_write ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'"
+                          x-text="p.can_write ? 'SÍ' : 'NO'"></span>
                       </td>
                       <td class="p-3">
-                        <button @click="toggleSub(s)" class="text-blue-600 text-xs underline"
-                          x-text="s.can_write ? 'Revocar' : 'Autorizar'"></button>
+                        <button @click="toggleSubAccount(p)" class="text-blue-600 text-xs underline"
+                          x-text="p.can_write ? 'Revocar' : 'Autorizar'"></button>
                       </td>
                     </tr>
                   </template>
@@ -484,24 +570,84 @@
               </table>
             </div>
 
-            <div x-show="view==='rep'">
-              <div class="flex justify-between items-center mb-3">
-                <h2 class="font-bold text-slate-700">Total horas de mi comisión: <span x-text="totalHours(hours)"></span></h2>
-                <button @click="exportXLS" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">Exportar XLS</button>
+            <!-- ASISTENCIA COORDINADOR -->
+            <div x-show="view==='att'">
+              <div class="bg-white rounded-lg shadow p-4 mb-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                <div><label class="block font-medium text-slate-700 mb-1">Desde</label>
+                  <input type="date" x-model="attFilter.from" @change="loadAttendance()" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                <div><label class="block font-medium text-slate-700 mb-1">Hasta</label>
+                  <input type="date" x-model="attFilter.to" @change="loadAttendance()" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div class="relative bg-white rounded-lg shadow p-4" style="height:280px"><canvas id="chartAtt"></canvas></div>
+                <div class="bg-white rounded-lg shadow p-4 text-sm space-y-2">
+                  <h3 class="font-bold text-slate-700">Resumen</h3>
+                  <p>Total: <strong x-text="attendanceData.length"></strong></p>
+                  <p>Asistencias: <strong class="text-green-600" x-text="attendanceData.filter(a=>a.attended).length"></strong></p>
+                  <p>Inasistencias: <strong class="text-red-600" x-text="attendanceData.filter(a=>!a.attended).length"></strong></p>
+                </div>
               </div>
               <div class="bg-white rounded-lg shadow overflow-x-auto">
                 <table class="min-w-full text-sm">
                   <thead class="bg-slate-50 text-left text-slate-600">
-                    <tr><th class="p-3">Fecha</th><th class="p-3">Voluntario</th><th class="p-3">Actividad</th><th class="p-3">Horas</th><th class="p-3">Estado</th></tr>
+                    <tr><th class="p-3">Fecha</th><th class="p-3">Voluntario</th><th class="p-3">Actividad</th><th class="p-3">Estado</th><th class="p-3">Justificación</th></tr>
+                  </thead>
+                  <tbody>
+                    <template x-for="a in attendanceData" :key="a.id">
+                      <tr class="border-t">
+                        <td class="p-3" x-text="a.meeting_date"></td>
+                        <td class="p-3" x-text="fullName(a.people)"></td>
+                        <td class="p-3" x-text="a.activities ? a.activities.name : ''"></td>
+                        <td class="p-3">
+                          <span class="px-2 py-1 rounded text-xs"
+                            :class="a.attended ? 'bg-green-100 text-green-700' : (a.justified ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700')"
+                            x-text="a.attended ? 'Asistió' : (a.justified ? 'Justificada' : 'Inasistencia')"></span>
+                        </td>
+                        <td class="p-3" x-text="a.justification || '—'"></td>
+                      </tr>
+                    </template>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- REPORTE COORDINADOR -->
+            <div x-show="view==='rep'">
+              <div class="flex justify-between items-center mb-3">
+                <h2 class="font-bold text-slate-700">Total: <span x-text="totalHours(hours)"></span> h</h2>
+                <button @click="exportXLS" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">Exportar XLS</button>
+              </div>
+              <div class="relative bg-white rounded-lg shadow p-4 mb-4" style="height:320px"><canvas id="chartHours"></canvas></div>
+              <div class="bg-white rounded-lg shadow overflow-x-auto">
+                <table class="min-w-full text-sm">
+                  <thead class="bg-slate-50 text-left text-slate-600">
+                    <tr><th class="p-3">Fecha</th><th class="p-3">Voluntario</th><th class="p-3">Actividad</th><th class="p-3">Horas</th><th class="p-3">Estado</th><th class="p-3">Acciones</th></tr>
                   </thead>
                   <tbody>
                     <template x-for="h in hours" :key="h.id">
                       <tr class="border-t">
-                        <td class="p-3" x-text="h.entry_date"></td>
+                        <td class="p-3"><template x-if="hourEdit===h.id"><input type="date" x-model="hourForm.entry_date" :max="today" class="border p-1 rounded text-xs" /></template><span x-show="hourEdit!==h.id" x-text="h.entry_date"></span></td>
                         <td class="p-3" x-text="fullName(h.people)"></td>
-                        <td class="p-3" x-text="h.activities ? h.activities.name : ''"></td>
-                        <td class="p-3" x-text="h.hours"></td>
+                        <td class="p-3">
+                          <template x-if="hourEdit===h.id">
+                            <select x-model="hourForm.activity_id" class="border p-1 rounded text-xs">
+                              <template x-for="a in activities" :key="a.id"><option :value="a.id" x-text="a.name"></option></template>
+                            </select>
+                          </template>
+                          <span x-show="hourEdit!==h.id" x-text="h.activities ? h.activities.name : ''"></span>
+                        </td>
+                        <td class="p-3"><template x-if="hourEdit===h.id"><input type="number" step="0.25" min="0.25" max="24" x-model="hourForm.hours" class="border p-1 rounded w-16 text-xs" /></template><span x-show="hourEdit!==h.id" x-text="h.hours"></span></td>
                         <td class="p-3" x-text="h.status"></td>
+                        <td class="p-3">
+                          <div x-show="hourEdit!==h.id" class="flex gap-2">
+                            <button @click="openHourEdit(h)" class="text-blue-600 text-xs underline">Editar</button>
+                            <button @click="deleteHour(h)" class="text-red-600 text-xs underline">Eliminar</button>
+                          </div>
+                          <div x-show="hourEdit===h.id" class="flex gap-2">
+                            <button @click="saveHourEdit()" class="text-green-600 text-xs underline">Guardar</button>
+                            <button @click="hourEdit = null" class="text-slate-600 text-xs underline">Cancelar</button>
+                          </div>
+                        </td>
                       </tr>
                     </template>
                   </tbody>
@@ -514,27 +660,55 @@
         <!-- ============ PANEL DIRECCIÓN ============ -->
         <template x-if="myRole === 'direccion'">
           <div>
-            <div class="flex justify-between items-center mb-3">
-              <h2 class="font-bold text-slate-700">Total horas ONG: <span x-text="totalHours(hours)"></span></h2>
-              <button @click="exportXLS" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">Exportar XLS</button>
+            <div class="flex gap-2 mb-4">
+              <button @click="view='rep'" :class="view==='rep' ? 'bg-blue-600 text-white' : 'bg-white'" class="px-4 py-2 rounded-lg text-sm font-medium shadow">Horas</button>
+              <button @click="view='att'; $nextTick(() => loadAttendance())" :class="view==='att' ? 'bg-blue-600 text-white' : 'bg-white'" class="px-4 py-2 rounded-lg text-sm font-medium shadow">Asistencia</button>
             </div>
-            <div class="bg-white rounded-lg shadow overflow-x-auto">
-              <table class="min-w-full text-sm">
-                <thead class="bg-slate-50 text-left text-slate-600">
-                  <tr><th class="p-3">Fecha</th><th class="p-3">Voluntario</th><th class="p-3">Comisión</th><th class="p-3">Actividad</th><th class="p-3">Horas</th></tr>
-                </thead>
-                <tbody>
-                  <template x-for="h in hours" :key="h.id">
-                    <tr class="border-t">
-                      <td class="p-3" x-text="h.entry_date"></td>
-                      <td class="p-3" x-text="fullName(h.people)"></td>
-                      <td class="p-3" x-text="commissionName(h.commission_id)"></td>
-                      <td class="p-3" x-text="h.activities ? h.activities.name : ''"></td>
-                      <td class="p-3" x-text="h.hours"></td>
-                    </tr>
-                  </template>
-                </tbody>
-              </table>
+            <div x-show="view==='rep'">
+              <div class="flex justify-between items-center mb-3">
+                <h2 class="font-bold text-slate-700">Total ONG: <span x-text="totalHours(hours)"></span> h</h2>
+                <button @click="exportXLS" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">Exportar XLS</button>
+              </div>
+              <div class="bg-white rounded-lg shadow overflow-x-auto">
+                <table class="min-w-full text-sm">
+                  <thead class="bg-slate-50 text-left text-slate-600">
+                    <tr><th class="p-3">Fecha</th><th class="p-3">Voluntario</th><th class="p-3">Comisión</th><th class="p-3">Actividad</th><th class="p-3">Horas</th></tr>
+                  </thead>
+                  <tbody>
+                    <template x-for="h in hours" :key="h.id">
+                      <tr class="border-t">
+                        <td class="p-3" x-text="h.entry_date"></td>
+                        <td class="p-3" x-text="fullName(h.people)"></td>
+                        <td class="p-3" x-text="commissionName(h.commission_id)"></td>
+                        <td class="p-3" x-text="h.activities ? h.activities.name : ''"></td>
+                        <td class="p-3" x-text="h.hours"></td>
+                      </tr>
+                    </template>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div x-show="view==='att'">
+              <div class="bg-white rounded-lg shadow p-4 mb-4 grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                <div><label class="block font-medium text-slate-700 mb-1">Comisión</label>
+                  <select x-model="attFilter.commission_id" @change="loadAttendance()" class="w-full border border-slate-300 rounded-lg p-2">
+                    <option value="">-- Todas --</option>
+                    <template x-for="c in commissions" :key="c.id"><option :value="c.id" x-text="c.name"></option></template>
+                  </select></div>
+                <div><label class="block font-medium text-slate-700 mb-1">Desde</label>
+                  <input type="date" x-model="attFilter.from" @change="loadAttendance()" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+                <div><label class="block font-medium text-slate-700 mb-1">Hasta</label>
+                  <input type="date" x-model="attFilter.to" @change="loadAttendance()" class="w-full border border-slate-300 rounded-lg p-2" /></div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="relative bg-white rounded-lg shadow p-4" style="height:280px"><canvas id="chartAtt"></canvas></div>
+                <div class="bg-white rounded-lg shadow p-4 text-sm space-y-2">
+                  <h3 class="font-bold text-slate-700">Resumen global</h3>
+                  <p>Total: <strong x-text="attendanceData.length"></strong></p>
+                  <p>Asistencias: <strong class="text-green-600" x-text="attendanceData.filter(a=>a.attended).length"></strong></p>
+                  <p>Inasistencias: <strong class="text-red-600" x-text="attendanceData.filter(a=>!a.attended).length"></strong></p>
+                </div>
+              </div>
             </div>
           </div>
         </template>
@@ -543,13 +717,7 @@
         <template x-if="myRole === 'tecnologia' && !isCoordView">
           <div>
             <h2 class="text-xl font-bold text-slate-800 mb-4">Panel Tecnología</h2>
-            <div class="bg-white p-4 rounded-lg shadow mb-4">
-              <p class="text-slate-600 text-sm">Acceso técnico del sistema.</p>
-            </div>
-            <div class="flex justify-between items-center mb-3">
-              <h2 class="font-bold text-slate-700">Horas visibles: <span x-text="totalHours(hours)"></span></h2>
-              <button @click="exportXLS" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">Exportar XLS</button>
-            </div>
+            <div class="bg-white p-4 rounded-lg shadow"><p class="text-slate-600 text-sm">Acceso técnico del sistema.</p></div>
           </div>
         </template>
 
@@ -563,7 +731,7 @@
     (function () {
       var problemas = [];
       if (!window.supabase) problemas.push('No se cargó la librería Supabase.');
-      if (typeof window.app !== 'function') problemas.push('app.js no se ejecutó: verifica que se llame exactamente "app.js", contenga SOLO JavaScript y esté en UTF-8.');
+      if (typeof window.app !== 'function') problemas.push('app.js no se ejecutó.');
       if (problemas.length) {
         var d = document.getElementById('boot-detail');
         if (d) { d.textContent = problemas.join(' '); d.style.color = '#b91c1c'; }

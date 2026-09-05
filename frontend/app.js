@@ -9,6 +9,15 @@ const SUPABASE_ANON_KEY = 'sb_publishable_RNVsXFDbqTieM9YkOG02bw_s5KWaew_';
 let sb = null;
 let configError = '';
 
+// Instancias de gráficos FUERA del estado reactivo de Alpine
+// (si se guardan dentro, el proxy reactivo rompe el render de Chart.js)
+let chartHoursInstance = null;
+let chartAttInstance = null;
+
+// DEBUG: logs en consola para diagnosticar
+const DEBUG = true;
+function log(...args) { if (DEBUG) console.log('[EV]', ...args); }
+
 (function initClient() {
   if (!window.supabase || typeof window.supabase.createClient !== 'function') {
     configError = '⚠️ No se pudo cargar la librería de Supabase.';
@@ -30,17 +39,24 @@ function app() {
     showReset: false, newPass: '', newPass2: '', resetMsg: '',
     commissions: [], activities: [], volunteers: [], hours: [], subs: [],
     view: 'vol',
-    form: { volunteer_id: '', activity_id: '', entry_date: '', hours: '', description: '' },
+    form: { volunteer_id: '', attended: null, activity_id: '', entry_date: '', hours: '', description: '', justified: null, justification: '' },
     notice: '', noticeType: 'ok',
     today: new Date().toISOString().slice(0, 10),
     fullForm: false,
-    personForm: { id: null, nombres: '', apellidos: '', dni: '', commission_id: '', internal_role: '', city: '', birth_date: '', phone: '', email: '', career: '', institution: '', education_level: '', works: '', allergies: '', insurance: '', emergency_contact: '', emergency_relationship: '', emergency_phone: '', hobbies: '', pets: '', admission_date: '', notes: '' },
+    personForm: { id: null, nombres: '', apellidos: '', dni: '', commission_id: '', internal_role: '', city: '', birth_date: '', phone: '', email: '', career: '', institution: '', education_level: '', works: '', allergies: '', insurance: '', emergency_contact: '', emergency_relationship: '', emergency_phone: '', hobbies: '', pets: '', admission_date: '', notes: '', photo_url: '' },
     certForm: { commission_id: '', person_id: '', start_date: '', end_date: '' },
     certPreview: null,
     pageVol: 1, pageHours: 1, pageSize: 15,
     filterCommission: '',
     filterSearch: '',
-    chart: null,
+    attFilter: { commission_id: '', from: '', to: '' },
+    attendanceData: [],
+
+    signerName: 'Heydi Alanya Camasca',
+    signerRole: 'Coordinadora de RRHH y Legal',
+    subAccounts: [],
+    hourEdit: null,
+    hourForm: { id: '', activity_id: '', entry_date: '', hours: '', description: '' },
 
     get myRole() { return this.profile ? this.profile.app_role : ''; },
     get myCommissions() { return (this.profile && this.profile.commission_roles) ? this.profile.commission_roles : []; },
@@ -50,14 +66,20 @@ function app() {
       return this.myCommissions.some(cr => cr.can_write);
     },
     get activeVols() { return this.volunteers.filter(v => v.status === 'activo'); },
+    get bajas() { return this.volunteers.filter(v => v.status === 'baja'); },
 
-    get pagedVols() { 
-      const filtered = this.filteredVols;
-      const s = (this.pageVol - 1) * this.pageSize; 
-      return filtered.slice(s, s + this.pageSize); 
+    get regVols() {
+      if (this.myCommission) return this.activeVols.filter(v => v.commission_id === this.myCommission.commission_id);
+      return this.activeVols;
     },
-    get totalPagesVols() { 
-      return Math.max(1, Math.ceil(this.filteredVols.length / this.pageSize)); 
+
+    get pagedVols() {
+      const filtered = this.filteredVols;
+      const s = (this.pageVol - 1) * this.pageSize;
+      return filtered.slice(s, s + this.pageSize);
+    },
+    get totalPagesVols() {
+      return Math.max(1, Math.ceil(this.filteredVols.length / this.pageSize));
     },
     get filteredVols() {
       let list = this.volunteers;
@@ -66,7 +88,7 @@ function app() {
       }
       if (this.filterSearch.trim()) {
         const q = this.filterSearch.trim().toLowerCase();
-        list = list.filter(v => 
+        list = list.filter(v =>
           (v.nombres + ' ' + v.apellidos).toLowerCase().includes(q) ||
           (v.email || '').toLowerCase().includes(q) ||
           (v.dni || '').includes(q)
@@ -183,7 +205,6 @@ function app() {
       if (error || !data) { console.warn('Perfil no encontrado:', error); this.profile = null; return; }
 
       let crs = [];
-      // Cuentas ligadas a persona (modelo antiguo, por compatibilidad)
       if (data.person_id) {
         const r = await sb
           .from('commission_roles')
@@ -191,13 +212,12 @@ function app() {
           .eq('person_id', data.person_id);
         crs = r.data || [];
       }
-      // Cuentas ligadas a comisión (modelo nuevo)
       if (data.commission_id && !crs.length) {
         const c = await sb.from('commissions').select('id, name').eq('id', data.commission_id).single();
         crs = [{
           commission_id: data.commission_id,
           role_type: data.app_role,
-          can_write: (data.app_role === 'coordinador' || data.app_role === 'rrhh'),
+          can_write: (data.app_role === 'coordinador' || data.app_role === 'rrhh' || (data.app_role === 'subcoordinador' && data.can_write)),
           commissions: c.data
         }];
       }
@@ -229,7 +249,6 @@ function app() {
         this.errorMsg = error.message;
         return;
       }
-      // Éxito: regresa al login con el mensaje verde
       this.forgotMode = false;
       this.infoMsg = '📧 Enlace enviado a tu correo (revisa también spam). Al abrirlo podrás crear tu nueva contraseña.';
     },
@@ -241,25 +260,25 @@ function app() {
 
     async saveNewPassword() {
       if (!this.isPasswordValid) return;
-      
+
       this.resetMsg = '';
       const { error } = await sb.auth.updateUser({ password: this.newPass });
-      
-      if (error) { 
-        this.resetMsg = error.message; 
-        return; 
+
+      if (error) {
+        this.resetMsg = error.message;
+        return;
       }
-      
+
       this.showReset = false;
-      this.newPass = ''; 
+      this.newPass = '';
       this.newPass2 = '';
       this.resetMsg = '';
-      
+
       await sb.auth.signOut();
-      this.session = null; 
+      this.session = null;
       this.profile = null;
       this.infoMsg = '✅ Contraseña actualizada correctamente. Ingresa con tu nueva contraseña.';
-      
+
       setTimeout(() => {
         this.session = null;
         this.profile = null;
@@ -267,7 +286,7 @@ function app() {
     },
 
     newPerson() {
-      this.personForm = { id: null, nombres: '', apellidos: '', dni: '', commission_id: '', internal_role: '', city: '', birth_date: '', phone: '', email: '', career: '', institution: '', education_level: '', works: '', allergies: '', insurance: '', emergency_contact: '', emergency_relationship: '', emergency_phone: '', hobbies: '', pets: '', admission_date: this.today, notes: '' };
+      this.personForm = { id: null, nombres: '', apellidos: '', dni: '', commission_id: '', internal_role: '', city: '', birth_date: '', phone: '', email: '', career: '', institution: '', education_level: '', works: '', allergies: '', insurance: '', emergency_contact: '', emergency_relationship: '', emergency_phone: '', hobbies: '', pets: '', admission_date: this.today, notes: '', photo_url: '' };
       this.fullForm = false;
       this.showPersonForm = true;
     },
@@ -282,7 +301,7 @@ function app() {
         allergies: v.allergies || '', insurance: v.insurance || '',
         emergency_contact: v.emergency_contact || '', emergency_relationship: v.emergency_relationship || '',
         emergency_phone: v.emergency_phone || '', hobbies: v.hobbies || '', pets: v.pets || '',
-        admission_date: v.admission_date || '', notes: v.notes || ''
+        admission_date: v.admission_date || '', notes: v.notes || '', photo_url: v.photo_url || ''
       };
       this.fullForm = true;
       this.showPersonForm = true;
@@ -306,6 +325,7 @@ function app() {
         emergency_phone: f.emergency_phone.trim() || null, hobbies: f.hobbies.trim() || null,
         pets: f.pets.trim() || null, admission_date: f.admission_date || null,
         notes: f.notes || null, updated_at: new Date().toISOString(),
+        photo_url: f.photo_url || null,
       };
       let error = null;
       if (f.id) {
@@ -366,12 +386,11 @@ function app() {
       return '<div style="font-family:Arial,Helvetica,sans-serif;color:#1e293b;max-width:800px;margin:0 auto;padding:24px;">' +
         '<div style="text-align:center;margin-bottom:16px;"><img src="assets/logo.png" style="height:80px;" onerror="this.style.display=\'none\'"/></div>' +
         '<h1 style="text-align:center;letter-spacing:3px;">CONSTANCIA</h1>' +
-        '<p style="text-align:right;font-size:12px;">' + c.certificate_code + '</p>' +
         '<p style="text-align:justify;line-height:1.7;">La organización juvenil <strong>EMPODÉRATE VECINO</strong>, acreditada formalmente ante la Secretaría Nacional de la Juventud del Ministerio de Educación mediante la Constancia <strong>No. 00227-2022-MINEDU/DM-SENAJU</strong>, certifica que el(la) señor(a) <strong>' + this.certName(p) + '</strong>' + dni + ', ha desempeñado labores de voluntariado en nuestra organización desde el <strong>' + fmt(c.start_date) + '</strong> hasta el <strong>' + fmt(c.end_date) + '</strong>, ocupando el puesto de <strong>' + (p.internal_role || 'Voluntario(a)') + '</strong>.' + horas + '</p>' +
         '<p style="text-align:justify;line-height:1.7;">Se expide la presente constancia a solicitud del interesado, a los ' + String(d.getDate()).padStart(2, '0') + ' días del mes de ' + meses[d.getMonth()] + ' de ' + d.getFullYear() + '.</p>' +
         '<p style="text-align:justify;line-height:1.7;">Para cualquier confirmación o ampliación de información, por favor comuníquese al correo electrónico empoderatevecino@gmail.com.</p>' +
-        '<p>Atentamente,</p>' +
-        '<div style="margin-top:56px;border-top:1px solid #334155;width:300px;text-align:center;padding-top:8px;"><strong>Camilo Rizo Leguizamón</strong><br/>Coordinador de Recursos Humanos y Legal<br/>EMPODÉRATE VECINO</div>' +
+        '<p style="margin-top:32px;">Atentamente,</p>' +
+        '<div style="margin-top:56px;border-top:1px solid #334155;width:300px;text-align:center;padding-top:8px;"><strong>' + this.signerName + '</strong><br/>' + this.signerRole + '<br/>EMPODÉRATE VECINO</div>' +
         '<div style="margin-top:56px;border-top:1px solid #cbd5e1;padding-top:12px;text-align:center;font-size:12px;color:#475569;">@ong.empoderatevecino · 📧 empoderatevecino@gmail.com · 🌐 www.empoderatevecino.com<br/>Potenciando comunidades para una transformación social duradera.</div>' +
         '</div>';
     },
@@ -412,7 +431,20 @@ function app() {
       ]);
       this.commissions = c || [];
       this.activities = a || [];
+
+      const { data: sg } = await sb.from('people')
+        .select('nombres, apellidos, internal_role')
+        .ilike('internal_role', '%RRHH%')
+        .ilike('internal_role', '%coordinador%')
+        .order('admission_date', { ascending: false })
+        .limit(1);
+      if (sg && sg.length) {
+        this.signerName = sg[0].nombres + ' ' + sg[0].apellidos;
+        this.signerRole = sg[0].internal_role;
+      }
+
       await this.refresh();
+      await this.loadAttendance();
     },
 
     async refresh() {
@@ -431,37 +463,156 @@ function app() {
           .eq('commission_id', this.myCommission.commission_id)
           .eq('role_type', 'subcoordinador');
         this.subs = s || [];
+
+        const { data: sa } = await sb.from('profiles')
+          .select('id, email, can_write')
+          .eq('app_role', 'subcoordinador')
+          .eq('commission_id', this.myCommission.commission_id);
+        this.subAccounts = sa || [];
       }
       if (this.view === 'rep') this.$nextTick(() => this.renderChart());
+      if (this.view === 'att') this.$nextTick(() => this.loadAttendance());
     },
 
     async submitHour() {
       this.notice = '';
       const f = this.form;
-      if (!f.volunteer_id || !f.activity_id || !f.entry_date || !f.hours) {
-        this.notify('Completa voluntario, actividad, fecha y horas.', 'err'); return;
+      const v = this.volunteers.find(x => x.id === f.volunteer_id);
+      if (!v) { this.notify('Selecciona un voluntario.', 'err'); return; }
+      if (!f.entry_date) { this.notify('Indica la fecha de la reunión/actividad.', 'err'); return; }
+      if (!f.attended) { this.notify('Marca si asistió o no asistió.', 'err'); return; }
+
+      if (f.attended === 'si') {
+        if (!f.activity_id || !f.hours) { this.notify('Completa actividad y horas.', 'err'); return; }
+        // Anti-duplicado: misma fecha + actividad + voluntario
+        const dup = this.hours.find(h => h.volunteer_id === v.id && h.entry_date === f.entry_date && h.activity_id === f.activity_id && h.status === 'activo');
+        if (dup && !confirm('Ya existe un registro activo de ' + this.fullName(v) + ' en esa fecha y actividad. ¿Registrar de todos modos?')) return;
+
+        const { error } = await sb.rpc('register_hour', {
+          p_volunteer_id: v.id, p_activity_id: f.activity_id, p_entry_date: f.entry_date,
+          p_hours: parseFloat(f.hours), p_description: f.description || null
+        });
+        if (error) { this.notify('Error: ' + error.message, 'err'); return; }
+        const { error: e2 } = await sb.from('attendance').insert({
+          person_id: v.id, commission_id: v.commission_id, activity_id: f.activity_id,
+          meeting_date: f.entry_date, attended: true, justified: null, justification: null,
+          registered_by: this.profile.id
+        });
+        if (e2) { this.notify('Hora registrada, pero la asistencia falló: ' + e2.message, 'err'); return; }
+        this.notify('✅ Hora y asistencia registradas.', 'ok');
+      } else {
+        if (!f.justified) { this.notify('Indica si la falta fue justificada o injustificada.', 'err'); return; }
+        const just = f.justified === 'si';
+        const { error } = await sb.from('attendance').insert({
+          person_id: v.id, commission_id: v.commission_id, activity_id: null,
+          meeting_date: f.entry_date, attended: false, justified: just,
+          justification: f.justification || null, registered_by: this.profile.id
+        });
+        if (error) { this.notify('Error: ' + error.message, 'err'); return; }
+        this.notify(just ? '✅ Inasistencia justificada registrada.' : '✅ Inasistencia injustificada registrada.', 'ok');
       }
-      const { error } = await sb.rpc('register_hour', {
-        p_volunteer_id: f.volunteer_id,
-        p_activity_id: f.activity_id,
-        p_entry_date: f.entry_date,
-        p_hours: parseFloat(f.hours),
-        p_description: f.description || null
+
+      this.form = { volunteer_id: '', attended: null, activity_id: '', entry_date: '', hours: '', description: '', justified: null, justification: '' };
+      await this.refresh();
+      await this.loadAttendance();
+    },
+
+    async toggleSubAccount(p) {
+      const { error } = await sb.rpc('set_account_write', { p_profile_id: p.id, p_can_write: !p.can_write });
+      if (error) { this.notify('Error: ' + error.message, 'err'); }
+      else { this.notify('✅ Permiso de cuenta actualizado.', 'ok'); await this.refresh(); }
+    },
+
+    openHourEdit(h) {
+      this.hourEdit = h.id;
+      this.hourForm = { id: h.id, activity_id: h.activity_id, entry_date: h.entry_date, hours: h.hours, description: h.description || '' };
+    },
+    async saveHourEdit() {
+      const f = this.hourForm;
+      const { error } = await sb.rpc('edit_hour', {
+        p_id: f.id, p_activity_id: f.activity_id, p_entry_date: f.entry_date,
+        p_hours: parseFloat(f.hours), p_description: f.description || null
       });
       if (error) { this.notify('Error: ' + error.message, 'err'); return; }
-      this.notify('✅ Hora registrada correctamente.', 'ok');
-      this.form = { volunteer_id: '', activity_id: '', entry_date: '', hours: '', description: '' };
+      this.hourEdit = null;
+      this.notify('✅ Registro corregido.', 'ok');
+      await this.refresh();
+    },
+    async deleteHour(h) {
+      if (!confirm('¿Eliminar definitivamente este registro de horas? Quedará en la auditoría.')) return;
+      const { error } = await sb.rpc('delete_hour', { p_id: h.id });
+      if (error) { this.notify('Error: ' + error.message, 'err'); return; }
+      this.notify('✅ Registro eliminado.', 'ok');
       await this.refresh();
     },
 
-    async toggleSub(cr) {
-      const { error } = await sb.rpc('set_subcoordinator_write', {
-        p_person_id: cr.person_id,
-        p_commission_id: cr.commission_id,
-        p_can_write: !cr.can_write
-      });
-      if (error) { this.notify('Error: ' + error.message, 'err'); }
-      else { this.notify('✅ Permiso de escritura actualizado.', 'ok'); await this.refresh(); }
+    async uploadPhoto(file) {
+      if (!file) return;
+      const ext = file.name.split('.').pop();
+      const path = (this.personForm.id || 'nueva') + '-' + Date.now() + '.' + ext;
+      const { error } = await sb.storage.from('fotos').upload(path, file, { upsert: true });
+      if (error) { this.notify('Error al subir foto: ' + error.message, 'err'); return; }
+      this.personForm.photo_url = sb.storage.from('fotos').getPublicUrl(path).data.publicUrl;
+      this.notify('✅ Foto cargada. Recuerda presionar Guardar.', 'ok');
+    },
+
+    exportPeopleXLS() {
+      if (!window.XLSX) { this.notify('Librería XLS no disponible.', 'err'); return; }
+      const rows = this.filteredVols.map(v => ({
+        Nombres: v.nombres, Apellidos: v.apellidos, DNI: v.dni || '',
+        Comision: this.commissionName(v.commission_id), Rol: v.internal_role || '',
+        Ciudad: v.city || '', Nacimiento: v.birth_date || '', Telefono: v.phone || '',
+        Correo: v.email || '', Estudios: v.education_level || '', Carrera: v.career || '',
+        Institucion: v.institution || '', Estado: v.status, Ingreso: v.admission_date || '',
+        FechaBaja: v.departure_date || '', MotivoBaja: v.departure_reason || ''
+      }));
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Personas');
+      XLSX.writeFile(wb, 'personas.xlsx');
+    },
+
+    downloadHoursTemplate() {
+      const ws = XLSX.utils.json_to_sheet([
+        { Correo: 'voluntario@correo.com', Fecha: this.today, Actividad: 'Reunión de comisión', Horas: 2, Descripcion: '' }
+      ]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Plantilla');
+      XLSX.writeFile(wb, 'plantilla_horas.xlsx');
+    },
+
+    async importHoursFile(file) {
+      if (!file) return;
+      try {
+        const wb = XLSX.read(await file.arrayBuffer());
+        const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+        let ok = 0; const errs = [];
+        for (let i = 0; i < rows.length; i++) {
+          const r = rows[i];
+          const email = String(r.Correo || '').trim().toLowerCase();
+          const v = this.volunteers.find(x => (x.email || '').toLowerCase() === email);
+          if (!v) { errs.push('Fila ' + (i + 2) + ': correo no encontrado'); continue; }
+          const act = this.activities.find(a => a.name.toLowerCase() === String(r.Actividad || '').trim().toLowerCase());
+          if (!act) { errs.push('Fila ' + (i + 2) + ': actividad no existe'); continue; }
+          let fecha = r.Fecha;
+          if (typeof fecha === 'number') {
+            fecha = new Date(Math.round((fecha - 25569) * 86400000)).toISOString().slice(0, 10);
+          } else {
+            fecha = String(fecha).slice(0, 10);
+          }
+          const horas = parseFloat(r.Horas);
+          if (!horas) { errs.push('Fila ' + (i + 2) + ': horas inválidas'); continue; }
+          const { error } = await sb.rpc('register_hour', {
+            p_volunteer_id: v.id, p_activity_id: act.id, p_entry_date: fecha,
+            p_hours: horas, p_description: r.Descripcion ? String(r.Descripcion) : null
+          });
+          if (error) errs.push('Fila ' + (i + 2) + ': ' + error.message); else ok++;
+        }
+        this.notify('Importación: ' + ok + ' OK' + (errs.length ? ', ' + errs.length + ' con error → ' + errs.slice(0, 3).join(' | ') : ''), errs.length ? 'err' : 'ok');
+        await this.refresh();
+      } catch (e) {
+        this.notify('Error al leer el archivo: ' + e.message, 'err');
+      }
     },
 
     async annul(h) {
@@ -505,8 +656,12 @@ function app() {
     },
 
     renderChart() {
+      log('renderChart llamado');
       const canvas = document.getElementById('chartHours');
-      if (!canvas || !window.Chart) return;
+      log('canvas:', canvas);
+      if (!canvas) { log('ERROR: canvas chartHours no encontrado'); return; }
+      if (!window.Chart) { log('ERROR: Chart.js no cargado'); return; }
+      
       const act = {};
       const monthsSet = new Set();
       this.hours.filter(h => h.status === 'activo').forEach(h => {
@@ -516,6 +671,7 @@ function app() {
         if (!act[a]) act[a] = {};
         act[a][m] = (act[a][m] || 0) + Number(h.hours);
       });
+      
       const months = Array.from(monthsSet).sort();
       const labels = months.map(m => { const p = m.split('-'); return p[1] + '/' + p[0]; });
       const colors = ['#2563eb', '#16a34a', '#dc2626', '#d97706', '#7c3aed', '#0891b2', '#db2777', '#65a30d'];
@@ -524,23 +680,101 @@ function app() {
         data: months.map(m => act[a][m] || 0),
         backgroundColor: colors[i % colors.length],
       }));
-      if (this.chart) { this.chart.destroy(); }
-      this.chart = new window.Chart(canvas.getContext('2d'), {
-        type: 'bar',
-        data: { labels: labels, datasets: datasets },
-        options: {
-          responsive: true,
-          scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } },
-          plugins: { legend: { position: 'bottom' } },
-        },
-      });
+      
+      log('Datos del gráfico:', { labels, datasets });
+      
+      setTimeout(() => {
+        try {
+          if (chartHoursInstance) {
+            log('Destruyendo instancia anterior');
+            chartHoursInstance.destroy();
+          }
+          chartHoursInstance = new window.Chart(canvas.getContext('2d'), {
+            type: 'bar',
+            data: { labels, datasets },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } },
+              plugins: { legend: { position: 'bottom' } },
+            },
+          });
+          log('Gráfico renderizado exitosamente');
+        } catch (err) {
+          log('ERROR al renderizar gráfico:', err);
+        }
+      }, 100);
     },
+
 
     onCertCommission() {
       this.certForm.person_id = '';
       this.certForm.start_date = '';
       this.certForm.end_date = '';
       this.certPreview = null;
+    },
+
+    async loadAttendance() {
+      let q = sb.from('attendance')
+        .select('*, people(nombres, apellidos), activities(name)')
+        .order('meeting_date', { ascending: false });
+      if (this.attFilter.commission_id) q = q.eq('commission_id', this.attFilter.commission_id);
+      if (this.attFilter.from) q = q.gte('meeting_date', this.attFilter.from);
+      if (this.attFilter.to) q = q.lte('meeting_date', this.attFilter.to);
+      const { data, error } = await q;
+      this.attendanceData = data || [];
+      this.renderAttChart();
+    },
+
+    renderAttChart() {
+      log('renderAttChart llamado');
+      const canvas = document.getElementById('chartAtt');
+      log('canvas:', canvas);
+      if (!canvas) { log('ERROR: canvas chartAtt no encontrado'); return; }
+      if (!window.Chart) { log('ERROR: Chart.js no cargado'); return; }
+      
+      const byCom = {};
+      this.attendanceData.forEach(a => {
+        const c = this.commissionName(a.commission_id) || 'Sin comisión';
+        if (!byCom[c]) byCom[c] = { asistio: 0, inasistio: 0 };
+        if (a.attended) byCom[c].asistio++;
+        else byCom[c].inasistio++;
+      });
+      
+      const labels = Object.keys(byCom);
+      const colors = ['#16a34a', '#dc2626', '#2563eb', '#d97706', '#7c3aed', '#0891b2', '#db2777', '#65a30d', '#475569', '#b91c1c'];
+      
+      log('Datos de asistencia:', byCom);
+      
+      setTimeout(() => {
+        try {
+          if (chartAttInstance) {
+            log('Destruyendo instancia anterior');
+            chartAttInstance.destroy();
+          }
+          chartAttInstance = new window.Chart(canvas.getContext('2d'), {
+            type: 'pie',
+            data: {
+              labels: labels,
+              datasets: [{ 
+                data: labels.map(l => byCom[l].asistio + byCom[l].inasistio), 
+                backgroundColor: colors.slice(0, labels.length) 
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { position: 'bottom' },
+                title: { display: true, text: 'Registros de asistencia por comisión' }
+              }
+            }
+          });
+          log('Gráfico de asistencia renderizado exitosamente');
+        } catch (err) {
+          log('ERROR al renderizar gráfico de asistencia:', err);
+        }
+      }, 100);
     },
   };
 }
